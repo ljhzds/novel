@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static "/static/materialize/css/materialize.css" %}">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>{% block title %}
+      小说下载-热门小说
+    {% endblock title %}</title>
+</head>
+<main></main>
+<body>
+    {% block topnav %}
+    <nav>
+        <div class="nav-wrapper green lighten-1">
+            <a href="{% url "novel:index" %}" class="brand-logo center">热门小说</a>
+            {# <a href="{% url "novel:search" %}" class="brand"><i class="mdi-action-search"></i></a> #}
+            <ul id="nav-mobile" class="left">
+                {# <li> #}
+                    {# <a href="{% url "novel:search" %}" class="btn-floating btn-large waves-effect waves-light red"> #}
+                    {# 搜 #}
+                    {# </a> #}
+                {# </li> #}
+            </ul>
+        </div>
+    </nav>
+    {% endblock topnav %}
+    {% block content %}
+    {% endblock content %}
+    {% block footer %}
+    <footer class="page-footer green lighten-1">
+        {# <div class="footer-copyright"> #}
+            <div class="container">
+                <div class="row">
+                    <div class="col s12 m6 l6"><p class="center">提供小说下载服务,内容来源网络,请勿商用</p></div>
+                    <div class="col s12 m6 l6"><p class="center">小说下载网 © 2016 Copyright 韵淡烽青</p></div>
+                </div>
+            </div>
+        {# </div> #}
+    </footer> 
+    {% endblock footer %}
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="{% static "/static/materialize/js/materialize.min.js" %}"></script>
+    <style type="text/css">
+        html, body {
+            background-image: url("{% static "/static/images/background.png" %}");
+        }
+    </style>
+</body>
+</html>

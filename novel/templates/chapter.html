@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}
+小说下载网-{{bookname}}-{{ title }}
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <h3 class="center-align"><a href="{% url "novel:book" book_id %}">{{ bookname }}</a></h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <h4 class="center-align">{{ title }}</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <p class="flex-text">{{ content }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s10 offset-s1">
+            {% if previous_ %}
+                <div class="left"><a href="{% url "novel:chapter" book_id previous_ %}">上一章</a></div>
+            {% endif %}
+            {% if next_ %}
+                <div class="right"><a href="{% url "novel:chapter" book_id next_ %}">下一章</a></div>
+            {% endif %}
+            </div>    
+        </div>
+    </div>
+{% endblock content %}

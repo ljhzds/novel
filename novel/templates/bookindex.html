@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}
+    小说下载-{{ book.name }}
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 l6">
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ book.img }}" height="250" width="200" alt="">
+                    </div>
+                    <div class="card-content">
+                        <p>{{ book.name }}</p>
+                        <p>作者:{{ book.author }}</p>
+                    </div>
+                    <div class="card-action">
+                        {% if book.read_on_site and book.index_url %}
+                            <a href="{% url "novel:update" book.id %}">更新章节</a>
+                            <a href="{{ book.down_url }}">下载</a>    
+                        {% else %}
+                            <p class="red lighten-1">本书暂不能阅读/下载...</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l6">
+                <div class="row">
+                    <div class="col s12">
+                         <h3>{{ book.name }}</h3>
+                         <p class="flow-text">{{ book.desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% for chapter in chapters %}
+                <div class="col s6 m4 l3">
+                    <p><a style="color: black" href="{% url "novel:chapter" book.id chapter.index %}">{{ chapter.title }}</a></p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
