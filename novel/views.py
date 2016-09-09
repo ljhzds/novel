@@ -1,14 +1,28 @@
 #coding : utf8
-import logging
+import logging, json
 
-from django.http import HttpResponse
-from django.template import RequestContext
+from django.http import HttpResponse, StreamingHttpResponse
+from django.template import RequestContext, Context
+from django.template.loader import get_template
 from django.shortcuts import render_to_response, redirect
 from django.utils.http import urlquote
+from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
 from .models import Book, BookChapter
 from .parse_novels import search as book_search, get_hot_books_by_json, search_like_bookname
 from .parse_novels import record_books, get_hot_number
 from .fetch_novel import save_search_result_data_to_book, search_by_keyword, save_content, get_chapter_content
+
+
+def get_html(template_filename, context):
+    this_context = context
+    t = get_template(template_filename)
+    content_html = t.render(Context(this_context))
+    payload = {
+        'content_html': content_html,
+        'success': True
+        }
+    return HttpResponse(json.dumps(payload), content_type="application/json")
 
 
 def index(request):
@@ -16,7 +30,7 @@ def index(request):
     hot_books = Book.objects.all().order_by('-hot')[:20]
     mycontext = {}
     mycontext.update({'books': hot_books})
-    return render_to_response('index.html', context=mycontext, context_instance=RequestContext(request))
+    return render_to_response('novel/index.html', context=mycontext, context_instance=RequestContext(request))
 
 
 def search(request):
@@ -28,6 +42,7 @@ def search(request):
         if not Book.objects.filter(name=bookname).exists():
             # if not this book in, then search from the internet
             bookdata = search_by_keyword(bookname)
+            search_result_books = []
             if bookdata:
                 search_result_books = save_search_result_data_to_book(bookdata)
         
@@ -38,23 +53,28 @@ def search(request):
         elif len(search_result_books) > 0:
             books = search_result_books
         mycontext.update({'books': books})
-        hot_books = Book.objects.all().order_by('-hot')[:8]
-        mycontext.update({'hotbooks': hot_books})
-    return render_to_response('search.html', context=mycontext, context_instance=RequestContext(request))
+        hotbooks = Book.objects.all().order_by('-hot')[:8]
+        mycontext.update({'hotbooks': hotbooks})
+    return render_to_response('novel/search.html', context=mycontext, context_instance=RequestContext(request))
 
 
+@csrf_exempt
 def book_index(request, book_id):
-    try:
-        book = Book.objects.get(pk=book_id)
-        chapters = BookChapter.objects.filter(book=book).order_by('index')
-        try:
-            book_tag = book.tag
-        except:
-            book_tag = '暂无分类'
-        return render_to_response('bookindex.html', {'book': book, 'chapters': chapters, 'book_tag': book_tag})
-    except Book.DoesNotExist:
-        logging.error('book does not exist')
-        return redirect('novel:index')
+
+    book = Book.objects.get(pk=book_id)
+    chapters = BookChapter.objects.filter(book=book).order_by('index')
+    paginator = Paginator(chapters, 48)
+    page_count = paginator.num_pages
+    page_range = paginator.page_range
+
+    # ajax 分页请求处理
+    if request.method=='POST' and request.is_ajax():
+        current_page = int(request.POST.get('current_page')) + 1
+        chapters = paginator.page(current_page)
+        return get_html('novel/chapters.html', locals())
+
+    chapters = paginator.page(1)
+    return render_to_response('novel/bookindex.html', locals())
 
 
 def chapter(request, book_id, index):
@@ -81,7 +101,7 @@ def chapter(request, book_id, index):
 
         # print(mycontext['chapter_content'])
         # book.get_next_by_pk
-        return render_to_response('chapter.html', context=mycontext)
+        return render_to_response('novel/chapter.html', context=mycontext)
     except Book.DoesNotExist:
         return redirect('novel:index')
     except Exception as e:
@@ -122,10 +142,10 @@ def download(request, book_id):
     # print(file_name)
 
     def downloadbook():
-        chapters = BookChapter.objects.filter(book=book).order_by('index')
+        chapters = BookChapter.objects.filter(book_id=book_id).order_by('index')
         for chapter in chapters:
-            title = chapter.chapter_name
-            content = get_chapter_content(url=chapter.url, source_site=book.source_site)
+            title = chapter.title
+            content = get_chapter_content(chapter_url=chapter.url, book_website=book.source_site)
             yield title + '\n' + content + '\n'
 
     response = StreamingHttpResponse(downloadbook())

@@ -1,0 +1,151 @@
+{% extends "novel/base.html" %}
+{% block title %}
+    小说下载-{{ book.name }}
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 l6">
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ book.img }}" height="250" width="200" alt="">
+                    </div>
+                    <div class="card-content">
+                        <p>{{ book.name }}</p>
+                        <p>作者:{{ book.author }}</p>
+                    </div>
+                    <div class="card-action">
+                        {% if book.read_on_site and book.index_url %}
+                            <a href="{% url "novel:update" book.id %}">更新章节</a>
+                            <a href="{% url "novel:download" book.id %}">下载</a>    
+                        {% else %}
+                            <p class="red lighten-1">本书暂不能阅读/下载...</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l6">
+                <div class="row">
+                    <div class="col s12">
+                         <h3>{{ book.name }}</h3>
+                         <p class="flow-text">{{ book.desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="chapters">
+            {% block chapters %}
+                {% include "novel/chapters.html" %}
+            {% endblock chapters %}
+        </div>
+
+        <div class="row">
+            <div class="col s12 m6 l6">
+                <ul class="pagination">
+                    <li class="disabled"><a href="#">&laquo;</a></li>
+                    {% for page_num in page_range  %}
+                        <li class="waves-effect"><a class="page" href="#">{{page_num}}</a></li>
+                    {% endfor %}
+                    <li class="waves-effect"><a href="#!">&raquo;</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+//---------------------当前导航项高亮--------------------------
+/*$(function(){
+    var category="{{category}}";
+    $('.'+category).addClass('active');
+})*/
+//-----------------------------------------------------------------------
+//---------------------异步加载当前文章条目----------------------------------------------------------------------------------------------------
+    $(function(){
+        var current_page=1;
+        var a=$("ul.pagination>li>.page");
+        var pages={{ page_count }};//总页数,注意从0开始计
+        var url = window.location.href;
+        console.log(url);
+        var color_o=a.css('color');
+        current_page=0;
+        //上一页click事件
+        $("ul.pagination>li>a:first").click(function(event) {
+            current_page-=1;
+            //console.log(current_page);
+            if(current_page<0){
+                current_page=0;
+            }else{
+                //url=base_url.toString()+current_page;
+                //window.location.replace(url);
+            }
+            get_data(current_page,url);
+            console.log('current_page is '+current_page);
+        });
+        //下一页click事件        
+        $("ul.pagination>li>a:last").click(function(event) {
+            current_page+=1;
+            //console.log(current_page);
+            if(current_page>pages-1){
+                current_page=pages-1;
+            }else{
+                //url=base_url.toString()+current_page;
+                //window.location.replace(url);
+            }
+            get_data(current_page,url);
+            console.log('current_page'+current_page);
+        });
+        
+        //为每一个页面标签绑定click事件
+        a.each(function(index, el) {
+            $(this).click(function(event) {
+                //console.log(index);
+                if(index<=pages-1){
+                    // a[current_page].style.color=color_o;            
+                    current_page=index;
+                    console.log('index:'+index);
+                    get_data(current_page,url);
+                    }else{
+                        alert("没有该页数据！")
+                    }
+
+                });
+        });
+        $("ul.pagination>li>.page").addClass(function(index, currentClass) {
+            console.log("index?"+index);
+            if (index == current_page) {
+                $("a").addClass('active');
+                $("a").removeClass('waves-effect');
+            } else {
+                $("a").removeClass('active');
+                $("a").addClass('waves-effect');
+            }
+        });
+    })
+    function get_data(current_page,url){
+     $.ajax({
+                type: "POST",
+                data: {current_page:current_page,},
+                url: url,
+                cache: false,
+                dataType: "json",
+                success: function(data) {
+                        //var dat=jQuery.parseJSON(data);
+                        //$('.posts').children().remove();
+                        //$('.posts').html(dat[0].fields.content);
+                        //console.log(dat[0].fields.content);
+                        console.log('remove begin');
+                        $('#chapters').children().remove();//
+                        console.log('remove end');
+                        $('#chapters').html(data.content_html);
+                        console.log('write end');
+            },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log('error');
+            }
+        })
+    }
+</script>
+{% endblock javascript %}

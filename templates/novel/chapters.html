@@ -1,0 +1,5 @@
+{% for chapter in chapters %}
+    <div class="col s6 m4 l3">
+        <p><a style="color: black" href="{% url "novel:chapter" book.id chapter.index %}">{{ chapter.title }}</a></p>
+    </div>
+{% endfor %}
