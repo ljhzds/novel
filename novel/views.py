@@ -136,7 +136,7 @@ def update(request, book_id):
 
 
 def download(request, book_id):
-
+    logging.info('download book: {0} begin'.format(book_id))
     book = Book.objects.get(pk=book_id)
     file_name = book.name + '.txt'
     # print(file_name)
@@ -151,6 +151,7 @@ def download(request, book_id):
     response = StreamingHttpResponse(downloadbook())
     response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment;filename="{0}"'.format(urlquote(file_name))
+    logging.info('download book: {0} end'.format(book_id))
     return response
 
 
