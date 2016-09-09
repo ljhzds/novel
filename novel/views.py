@@ -1,5 +1,5 @@
 #coding : utf8
-import logging, json
+import logging, json, time
 
 from django.http import HttpResponse, StreamingHttpResponse
 from django.template import RequestContext, Context
@@ -34,6 +34,7 @@ def index(request):
 
 
 def search(request):
+    start = time.time()
     mycontext = {}
     if 'bookname' in request.GET and request.GET['bookname']:
         bookname = request.GET['bookname'].strip()
@@ -55,6 +56,8 @@ def search(request):
         mycontext.update({'books': books})
         hotbooks = Book.objects.all().order_by('-hot')[:8]
         mycontext.update({'hotbooks': hotbooks})
+    end = time.time()
+    print(end-start)
     return render_to_response('novel/search.html', context=mycontext, context_instance=RequestContext(request))
 
 

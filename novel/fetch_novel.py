@@ -1,6 +1,7 @@
-# encoding:UTF-8
+# coding:UTF-8
 # from threading import Thread
 import logging
+import threading
 from configparser import ConfigParser
 import os
 from os import (path, makedirs, listdir)
@@ -43,24 +44,32 @@ def search_by_id(novelname, id='bqg5200'):
     opts = CONFIG[id]
     __searchdata = {}
     __searchdata[opts['keyword']] = novelname  # 构建搜索关键词
-    url = opts["slink"] + parse.urlencode(__searchdata, encoding='GBK')  # 关键词URL编码
+    url = opts["slink"] + parse.urlencode(__searchdata, encoding='utf8')  # 关键词URL编码
     try:
         data = requests.get(url, headers=header).content  # 读取搜索页面内容
     except:
-        return -1  # 网站无法连接
+        return -1, None  # 网站无法连接
     soup = BeautifulSoup(data, "html.parser")  # 构建BS数据
     string = 'soup.' + opts["novel_link"]
     try:
         url = eval(string)  # 获取小说页面链接
     except:
-        return -2
+        return -2, None
+    string = 'soup.' + opts["novel_name"]
+    try:
+        bookname = eval(string)  # 获取小说页面链接
+        bookname = bookname.strip()
+        # print(bookname)
+    except Exception as e:
+        print(e)
+        return -2, None
     if not url.startswith('http'):
         url = opts["url"] + url  # 构建小说页面链接
     # try:
     #     data = request.urlopen(url).read()                             #读取小说信息页面内容
     # except:
     #     return -1                                                      #小说信息页面无法连接
-    return url
+    return url, bookname
 
 # url = search_by_id('雪鹰领主', 'bqg5200')
 # print(url)
@@ -226,10 +235,14 @@ def get_chapter_content(chapter_url, book_website):
 def search_by_keyword(keyword):
     search_result_status = 0
     search_result_noveldata = []
+
     for id in get_id():
-        novel_url = search_by_id(novelname=keyword, id=id)
-        # print(novel_url)
+        novel_url, bookname = search_by_id(novelname=keyword, id=id)
+        print(bookname)
+        print(novel_url)
         if novel_url == -1 or novel_url == -2:
+            continue
+        if (not bookname == keyword):
             continue
         noveldata = get_novel_info(novel_url, id=id)
         # print(noveldata)
@@ -244,6 +257,41 @@ def search_by_keyword(keyword):
         return search_result_noveldata
     else:
         return None
+
+
+def search_by_keyword2(keyword):
+    global search_result_noveldata
+    global lock
+    lock = threading.Lock()
+    threads = []
+    search_result_noveldata = []
+    for id in get_id():
+        t = threading.Thread(target=search_by_keyword_and_id, args=(keyword, id))
+        # threads.append(t)
+        t.start()
+        t.join()
+    # for t in threads:
+    #     t.join()
+    if len(search_result_noveldata):
+        return search_result_noveldata
+    else:
+        return None
+
+
+def search_by_keyword_and_id(keyword, id):
+    # print(keyword, id)
+    novel_url = search_by_id(novelname=keyword, id=id)
+    if novel_url == -1 or novel_url == -2:
+        return None
+    noveldata = get_novel_info(novel_url, id=id)
+    if noveldata == -1 or (not noveldata.get('title', None)):
+        return None
+    lock.acquire()
+    try:
+        search_result_noveldata.append(noveldata)
+    finally:
+        lock.release()
+
 
 
 def save_search_result_data_to_book(search_result_noveldata):
