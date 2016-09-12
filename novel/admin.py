@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Book, BookChapter, BookTag
+from .models import Book, BookChapter, BookTag, Config
 
 
 class BookAdmin(admin.ModelAdmin):
@@ -16,5 +16,10 @@ class BookChapterAdmin(admin.ModelAdmin):
 	list_filter = ('book',)
 
 
+class ConfigAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(BookChapter, admin_class=BookChapterAdmin)
 admin.site.register(Book, admin_class=BookAdmin)
+admin.site.register(Config, admin_class=ConfigAdmin)

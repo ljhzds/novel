@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from .secret import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'novel',
+    'usercenter',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -133,3 +135,13 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# usercenter 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+ACCOUNT_ACTIVATION_DAYS=7
+EMAIL_HOST='smtp.qq.com'
+EMAIL_USE_TLS=1
+EMAIL_PORT=587
+
+AUTH_USER_MODEL = 'usercenter.MyUser'
+LOGIN_REDIRECT_URL = '/'

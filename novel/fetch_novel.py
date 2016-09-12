@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 try:
     from .models import Book, BookTag
 except ImportError:
-    from models import Book, BookTag
+    from novel.models import Book, BookTag
 except:
     raise ImportError
 
@@ -75,6 +75,7 @@ def search_by_id(novelname, id='bqg5200'):
 # print(url)
 
 
+
 def get_novel_info(url, id='bqg5200'):
     '''获取小说信息
     url：小说信息（目录）页
@@ -94,7 +95,7 @@ def get_novel_info(url, id='bqg5200'):
     noveldata['website'] = opts['name']
     # print(noveldata)
     string = 'soup.' + opts['title']
-    print(string)
+    # print(string)
     noveldata['title'] = eval(string)
 
     try:

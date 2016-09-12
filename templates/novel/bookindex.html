@@ -70,9 +70,11 @@
         var url = window.location.href;
         console.log(url);
         var color_o=a.css('color');
+        a[0].style.color="red";
         current_page=0;
         //上一页click事件
         $("ul.pagination>li>a:first").click(function(event) {
+            a[current_page].style.color=color_o;
             current_page-=1;
             //console.log(current_page);
             if(current_page<0){
@@ -81,11 +83,13 @@
                 //url=base_url.toString()+current_page;
                 //window.location.replace(url);
             }
+            a[current_page].style.color='red';
             get_data(current_page,url);
             console.log('current_page is '+current_page);
         });
         //下一页click事件        
         $("ul.pagination>li>a:last").click(function(event) {
+            a[current_page].style.color=color_o;
             current_page+=1;
             //console.log(current_page);
             if(current_page>pages-1){
@@ -94,6 +98,7 @@
                 //url=base_url.toString()+current_page;
                 //window.location.replace(url);
             }
+            a[current_page].style.color='red';
             get_data(current_page,url);
             console.log('current_page'+current_page);
         });
@@ -103,9 +108,10 @@
             $(this).click(function(event) {
                 //console.log(index);
                 if(index<=pages-1){
-                    // a[current_page].style.color=color_o;            
+                    a[current_page].style.color=color_o;            
                     current_page=index;
                     console.log('index:'+index);
+                    a[current_page].style.color='red';
                     get_data(current_page,url);
                     }else{
                         alert("没有该页数据！")

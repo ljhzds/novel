@@ -3,6 +3,43 @@
 from django.db import models
 
 # Create your models here.
+class Config(models.Model):
+    # 站点源信息
+    site_short_name = models.CharField(max_length=20, verbose_name='ID', unique=True)
+    site_desc = models.CharField(max_length=50, verbose_name='站点源')
+    site_url = models.CharField(max_length=200, verbose_name='站点源URL')
+    search_link = models.CharField(max_length=200, verbose_name='查询URL')
+    search_keyword = models.CharField(max_length=20, verbose_name='查询参数')
+    # 查询结果页面解析配置
+    novel_link = models.CharField(max_length=200, verbose_name='小说主页地址')
+    novel_name = models.CharField(max_length=100, verbose_name='书名')
+
+    # 小说主页信息获取
+    title = models.CharField(max_length=100, verbose_name='主页书名')
+    description = models.CharField(max_length=200, verbose_name='主页简介')
+    image = models.CharField(max_length=200, verbose_name='封面图片')
+    category = models.CharField(max_length=200, verbose_name='分类')
+    author = models.CharField(max_length=200, verbose_name='作者')
+    status = models.CharField(max_length=200, verbose_name='更新状态')
+    update = models.CharField(max_length=200, verbose_name='最后更新时间')
+    latest = models.CharField(max_length=200, verbose_name='最近章节')
+
+    # 章节信息
+    chapter_list = models.CharField(max_length=200, verbose_name='章节列表')
+    chapter_name = models.CharField(max_length=200, verbose_name='章节名称')
+    chapter_link = models.CharField(max_length=200, verbose_name='章节地址')
+    text = models.CharField(max_length=200, verbose_name='章节正文')
+
+    #priority 优先级
+    priority = models.IntegerField(verbose_name='查询优先级', default=1)
+
+    class Meta:
+        verbose_name = '源站点配置'
+        verbose_name_plural = '源站点配置'
+
+    def __str__(self):
+        return self.site_desc
+
 
 class BookTag(models.Model):
     tag_name = models.CharField(max_length=50, verbose_name='书本分类', unique=True)
@@ -23,6 +60,7 @@ class Book(models.Model):
     name = models.CharField(max_length=100, verbose_name='书名')
     tag = models.ForeignKey(BookTag, blank=True, null=True)
     source_site = models.CharField(max_length=100, verbose_name='来源网站')
+    source_site2 = models.ForeignKey(Config, verbose_name='站点源', default=0)
     author = models.CharField(max_length=50, verbose_name='作者', default='暂无作者信息')
     img = models.CharField(max_length=200, verbose_name='封面地址', default='')
     desc = models.CharField(max_length=1000, verbose_name='简介', default='')
@@ -42,9 +80,12 @@ class Book(models.Model):
         return self.name
 
     @property
-    def get_download_url(self):
-        return None
-
+    def get_default_source(self):
+        try:
+            site = Config.objects.get(site_short_name=self.source_site)
+            return site.id
+        except:
+            return None
 
 class BookChapter(models.Model):
     book = models.ForeignKey(Book)

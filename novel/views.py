@@ -11,7 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Book, BookChapter
 from .parse_novels import search as book_search, get_hot_books_by_json, search_like_bookname
 from .parse_novels import record_books, get_hot_number
-from .fetch_novel import save_search_result_data_to_book, search_by_keyword, save_content, get_chapter_content
+# from .fetch_novel import save_search_result_data_to_book, search_by_keyword, save_content, get_chapter_content, escapefrom .fetch_novel import save_search_result_data_to_book, search_by_keyword, save_content, get_chapter_content, escape
+from .fetch_novel import save_content, get_chapter_content, escape
+from .fetch import search_by_config
 
 
 def get_html(template_filename, context):
@@ -42,17 +44,11 @@ def search(request):
         logging.info('查询: {0}'.format(bookname))
         if not Book.objects.filter(name=bookname).exists():
             # if not this book in, then search from the internet
-            bookdata = search_by_keyword(bookname)
-            search_result_books = []
-            if bookdata:
-                search_result_books = save_search_result_data_to_book(bookdata)
-        
+            search_by_config(bookname)        
         if Book.objects.filter(name=bookname).exists():
             books = Book.objects.filter(name=bookname)
-        elif not Book.objects.filter(name=bookname).exists() and len(search_result_books)==0:
+        else:
             books = Book.objects.filter(name__contains=bookname).order_by('-hot')[:4]
-        elif len(search_result_books) > 0:
-            books = search_result_books
         mycontext.update({'books': books})
         hotbooks = Book.objects.all().order_by('-hot')[:8]
         mycontext.update({'hotbooks': hotbooks})
@@ -66,7 +62,7 @@ def book_index(request, book_id):
 
     book = Book.objects.get(pk=book_id)
     chapters = BookChapter.objects.filter(book=book).order_by('index')
-    paginator = Paginator(chapters, 48)
+    paginator = Paginator(chapters, 144)
     page_count = paginator.num_pages
     page_range = paginator.page_range
 
@@ -91,6 +87,7 @@ def chapter(request, book_id, index):
         title = chapter.title
         url = chapter.url
         content = get_chapter_content(url, source_site)
+        content = escape(content)
         # content
         # content = escape(content)
         mycontext.update({'book_id': book.pk})

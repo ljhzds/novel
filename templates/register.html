@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col s1 m3 l3">
+            &nbsp;
+        </div>
+        <div class="col s10 m6 l6">
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3>注册</h3>
+                </div>
+                <div class="panel-body">
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <span class="input-group-addon">昵称</span>
+                            <input id="id_username" maxlength="254" name="nickname" type="text" class="form-control" />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon">邮箱&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input id="id_email" name="email" type="text" class="form-control" />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon">密码&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input id="id_password" name="password" type="password" class="form-control" />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon">确认密码</span>
+                            <input id="id_re_password" name="re_password" type="password" class="form-control" />
+                        </div>
+                        <br />
+                        <input type="submit" class="btn btn-primary" value="注册" />
+                    </form>
+                </div>
+                <div class="panel-footer">
+                </div>
+            </div>
+        </div>
+        <div class="col s1 m3 l3">
+            &nbsp;
+        </div>
+    </div>
+</div>
+{% endblock %}

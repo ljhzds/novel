@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="col s3">
+ &nbsp;
+</div>
+<div class="col s6">
+  <h2>登出成功</h2>
+  <a href="{% url "login" %}">重新登录？</a>
+  <a href="{% url "novel:index" %}">回到首页</a>
+</div>
+<div class="col s3">
+ &nbsp;
+</div>
+{% endblock %}

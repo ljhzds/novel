@@ -24,4 +24,6 @@ handler500 = "novel.down_novel_views.page_error"
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('novel.urls', namespace='novel', app_name='novel')),
+    url(r'^usercenter/', include('usercenter.urls', namespace='usercenter', app_name='usercenter')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

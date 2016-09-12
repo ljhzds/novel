@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+migrations/
 *.py[cod]
 *$py.class
 # Django stuff:
@@ -7,4 +8,6 @@ __pycache__/
 local_settings.py
 *.sqlite3
 local_uwsgi.ini
-*.DS_Store
+.DS_Store
+novel/.DS_Store
+secret.py
