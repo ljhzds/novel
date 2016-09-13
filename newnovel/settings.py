@@ -127,8 +127,12 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
+            'level': 'INFO',
             'propagate': True,
         },
+        'requests': {
+            'level': 'WARNING',
+        }
     },
     'root': {
         'handlers': ['file'],
