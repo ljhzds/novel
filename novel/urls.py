@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^book/(?P<book_id>[0-9]+)/(?P<index>[0-9]+)/$', views.chapter, name='chapter'),
     url(r'^update/(?P<book_id>[0-9]+)/$', views.update, name='update'),
     url(r'^download/(?P<book_id>[0-9]+)/$', views.download, name='download'),
+    url(r'^feedback/', views.feedback, name='feedback'),
 ]

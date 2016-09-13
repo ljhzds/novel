@@ -1,14 +1,14 @@
 #coding : utf8
 import logging, json, time
 
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse, HttpResponseBadRequest
 from django.template import RequestContext, Context
 from django.template.loader import get_template
 from django.shortcuts import render_to_response, redirect
 from django.utils.http import urlquote
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
-from .models import Book, BookChapter
+from .models import Book, BookChapter, Feedback
 from .parse_novels import search as book_search, get_hot_books_by_json, search_like_bookname
 from .parse_novels import record_books, get_hot_number
 # from .fetch_novel import save_search_result_data_to_book, search_by_keyword, save_content, get_chapter_content, escapefrom .fetch_novel import save_search_result_data_to_book, search_by_keyword, save_content, get_chapter_content, escape
@@ -165,4 +165,22 @@ def page_error(request):
 
 def insert(request):
     return HttpResponse('已插入')
+
+
+@csrf_exempt
+def feedback(request):
+
+    if request.method == 'GET':
+        feedbacks = Feedback.objects.all().order_by('-add_time')[:5]
+        return render_to_response('novel/feedback.html', locals())
+    elif request.method == 'POST':
+        title = request.POST.get('title')
+        desc = request.POST.get('desc')
+        email = request.POST.get('email')
+        fb = Feedback(title=title, desc=desc, email=email)
+        fb.save()
+        return redirect('novel:feedback')
+    else:
+        return HttpResponseBadRequest('非法访问方式.')
+
 

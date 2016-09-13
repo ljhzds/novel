@@ -1,0 +1,53 @@
+{% extends "novel/base.html" %} {% block title %} 
+{{block.super}}-Feedback {% endblock title %} {% block content %}
+<div class="container">
+    <div class="row">
+        <h3 class="center" style="color: black">请反馈</h3>
+    </div>
+    <div class="row">
+        <form class="col s12" method="post" action="{% url "novel:feedback" %}">
+            <div class="row">
+                <div class="input-field col s10">
+                    <input id="title" name="title" type="text" class="validate" length=50>
+                    <label for="title">标题</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s10">
+                    <textarea id="id_desc" name="desc" length=250 class="materialize-textarea" name="desc"></textarea>
+                    <label for="id_desc">描述</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s10">
+                    <input id="email" type="email" name="email" class="validate" placeholder="非必填">
+                    <label for="email">邮箱</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s10">
+                <input type="submit" class="btn btn-primary" value="提交" />
+                </div>
+            </div>
+        </form>
+    </div>
+    {% for feedback in feedbacks %}
+        <div class="row">
+            <div class="col s12 m6">
+                <div class="card blue-grey darken-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">{{ feedback.title }}</span>
+                        <span>{{feed.add_time}}</span>
+                        <p> {{ feedback.desc }} </p>
+                    </div>
+                    <div class="card-action">
+                        <a href="#">有用</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    {% endfor %}
+</div>
+{% endblock content %}

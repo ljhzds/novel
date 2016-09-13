@@ -60,7 +60,7 @@ class Book(models.Model):
     name = models.CharField(max_length=100, verbose_name='书名')
     tag = models.ForeignKey(BookTag, blank=True, null=True)
     source_site = models.CharField(max_length=100, verbose_name='来源网站')
-    source_site2 = models.ForeignKey(Config, verbose_name='站点源', default=0)
+    source_site2 = models.ForeignKey(Config, verbose_name='站点源', default='', null= True, blank=True)
     author = models.CharField(max_length=50, verbose_name='作者', default='暂无作者信息')
     img = models.CharField(max_length=200, verbose_name='封面地址', default='')
     desc = models.CharField(max_length=1000, verbose_name='简介', default='')
@@ -98,6 +98,21 @@ class BookChapter(models.Model):
         ordering = ['-index']
         verbose_name = '小说章节'
         verbose_name_plural = '小说章节'
+
+    def __str__(self):
+        return self.title
+
+
+class Feedback(models.Model):
+    title = models.CharField(max_length=100, verbose_name='问题')
+    desc = models.CharField(max_length=500, verbose_name='详细描述')
+    email = models.EmailField(max_length=50, verbose_name='邮箱', null=True, blank=True)
+
+    add_time = models.DateTimeField(verbose_name='反馈时间', auto_now_add=True)
+
+    class Meta:
+        verbose_name='问题反馈'
+        verbose_name_plural='问题反馈'
 
     def __str__(self):
         return self.title
