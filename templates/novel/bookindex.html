@@ -11,16 +11,39 @@
                         <img src="{{ book.img }}" height="250" width="200" alt="">
                     </div>
                     <div class="card-content">
-                        <p>{{ book.name }}</p>
-                        <p>作者:{{ book.author }}</p>
+                        <div class="col s6">
+                            <p>{{ book.name }}</p>
+                        </div>
+                        <div class="col s6">
+                            <span>{{ book.author }}</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="col s6">
+                            <span>阅读次数:{{ book.read_times }}</span>
+                        </div>
+                        <div class="col s6">
+                            <span>下载次数{{ book.download_times }}</span>
+                        </div>
                     </div>
                     <div class="card-action">
+                        
                         {% if book.read_on_site and book.index_url %}
+                        <div class="col s6">
                             <a href="{% url "novel:update" book.id %}">更新章节</a>
+                        </div>
+                        <div class="col s6">
                             <a href="{% url "novel:download" book.id %}">下载</a>    
+                        </div>
                         {% else %}
+                        <div class="col s12">
                             <p class="red lighten-1">本书暂不能阅读/下载...</p>
+                        </div>
+                            
                         {% endif %}
+                        <div class="col s12">
+                            &nbsp;
+                        </div>
                     </div>
                 </div>
             </div>

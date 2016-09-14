@@ -41,7 +41,7 @@ def search(request):
     if 'bookname' in request.GET and request.GET['bookname']:
         bookname = request.GET['bookname'].strip()
         mycontext.update({'bookname': bookname})
-        logging.debug('查询: {0}'.format(bookname))
+        logging.info('查询: {0}'.format(bookname))
         if not Book.objects.filter(name=bookname).exists():
             # if not this book in, then search from the internet
             search_by_config(bookname)        
@@ -53,7 +53,7 @@ def search(request):
         hotbooks = Book.objects.all().order_by('-hot')[:8]
         mycontext.update({'hotbooks': hotbooks})
     end = time.time()
-    print(end-start)
+    logging.info('查询耗时: {0}'.format(end-start))
     return render_to_response('novel/search.html', context=mycontext, context_instance=RequestContext(request))
 
 
@@ -73,6 +73,8 @@ def book_index(request, book_id):
         return get_html('novel/chapters.html', locals())
 
     chapters = paginator.page(1)
+    book.read_times += 1
+    book.save()
     return render_to_response('novel/bookindex.html', locals())
 
 
@@ -136,8 +138,10 @@ def update(request, book_id):
 
 
 def download(request, book_id):
-    logging.debug('download book: {0} begin'.format(book_id))
+    logging.info('download book: {0} begin'.format(book_id))
     book = Book.objects.get(pk=book_id)
+    book.download_times += 1
+    book.save()
     file_name = book.name + '.txt'
     # print(file_name)
 
@@ -151,7 +155,7 @@ def download(request, book_id):
     response = StreamingHttpResponse(downloadbook())
     response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment;filename="{0}"'.format(urlquote(file_name))
-    logging.debug('download book: {0} end'.format(book_id))
+    logging.info('download book: {0} end'.format(book_id))
     return response
 
 

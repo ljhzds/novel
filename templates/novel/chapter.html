@@ -16,7 +16,9 @@
         </div>
         <div class="row">
             <div class="col s12">
+                {% autoescape off %}
                 <p class="flow-text" id="content">{{ content }}</p>
+                {% endautoescape %}
             </div>
         </div>
         <div class="row">

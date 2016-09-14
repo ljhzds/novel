@@ -73,6 +73,9 @@ class Book(models.Model):
     hot = models.IntegerField(verbose_name='火热指数', default=0)
     read_on_site = models.BooleanField(verbose_name='本站是否可读', default=False)
 
+    read_times = models.IntegerField(verbose_name='阅读次数', default=1)
+    download_times = models.IntegerField(verbose_name='下载次数', default=1)
+
     class Meta:
         verbose_name = '小说'
         verbose_name_plural = '小说'

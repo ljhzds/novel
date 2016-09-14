@@ -226,7 +226,8 @@ def escape(txt, space=1):
 def get_chapter_content(chapter_url, book_website):
     opts = CONFIG[book_website]
     try:
-        soup = BeautifulSoup(requests.get(chapter_url, headers=header).content, "html.parser")
+        data = requests.get(chapter_url, headers=header).content.decode('gbk', 'ignore').replace('<br />','\n')
+        soup = BeautifulSoup(data, "html.parser")
         content = eval('soup.' + opts['text'])
     except:
         content = '未找到章节内容,刷新重试'
