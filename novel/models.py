@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 class Config(models.Model):
@@ -113,9 +114,25 @@ class Feedback(models.Model):
 
     add_time = models.DateTimeField(verbose_name='反馈时间', auto_now_add=True)
 
+    done_flag = models.BooleanField(verbose_name='是否解决', default=False)
+
     class Meta:
         verbose_name='问题反馈'
-        verbose_name_plural='问题反馈'
+        verbose_name_plural='问题反馈'  
 
     def __str__(self):
         return self.title
+
+
+class FeedbackComment(models.Model):
+    feedback = models.ForeignKey(Feedback, verbose_name='所属问题')
+    parent_comment = models.ForeignKey('self', related_name='my_children', blank=True, null=True)
+    comment = models.CharField(max_length=200, blank=True,null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='回复人', null=True, blank=True)
+
+    def clean(self):
+        if len(self.comment) ==0:
+            raise ValidationError('评论内容不能为空')
+
+    def __str__(self):
+        return self.comment

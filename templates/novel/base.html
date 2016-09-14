@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static "/static/materialize/css/materialize.css" %}">
+    {% block cssfiles %}
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    {% endblock cssfiles %}
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>{% block title %}
@@ -26,6 +29,11 @@
         </div>
     </nav>
     {% endblock topnav %}
+    {% block bottom-btn %}
+        <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+            <a href="{% url "novel:feedback" %}" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">edit</i></a>
+        </div>
+    {% endblock bottom-btn %}
     {% block content %}
     {% endblock content %}
     {% block footer %}
