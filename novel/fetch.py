@@ -19,6 +19,7 @@ def search_by_config(bookname):
         # print(source.search_link)
         url = source.search_link + parse.urlencode(__searchdata, encoding='utf8')  # 关键词URL编码
         # print(url)
+        logging.info(url)
         try:
             data = requests.get(url, headers=headers).content  # 读取搜索页面内容
         except:
