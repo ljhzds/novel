@@ -1,12 +1,22 @@
 # coding: utf-8
 import logging
 from urllib import (request, parse)
+import asyncio, sys, os, time
+import async_timeout
+import aiohttp
+
+if __name__ == '__main__':
+    from django.core.wsgi import get_wsgi_application
+
+    sys.path.extend(['/Users/zhangdesheng/Documents/python-learning/zds-git/newnovel/',])
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE","newnovel.settings")
+    application = get_wsgi_application()
 
 from django.conf import settings
 import requests
 from bs4 import BeautifulSoup
 
-from novel.models import Config, Book, BookTag
+from novel.models import Config, Book, BookTag, BookChapter
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0'}
 
@@ -156,3 +166,71 @@ def save_noveldata(noveldata):
     return book
 
 
+async def dbook(book_id):
+    loop = asyncio.get_event_loop()
+    reqs = []
+    ress = []
+    text = ''
+    book = Book.objects.all().get(id=book_id)
+    config = Config.objects.all().get(site_short_name=book.source_site)
+    for chapter in BookChapter.objects.filter(book_id=book_id).order_by('-index'):
+        reqs.append(loop.run_in_executor(None, requests.get, chapter.url))
+    
+    for req in reqs:
+        ress.append(await req)
+
+    for res in ress:
+        try:
+            data = res.content.decode('gbk', 'ignore').replace('<br />','\n')
+            soup = BeautifulSoup(data, "html.parser")
+            content = eval('soup.' + opts['text'])
+        except:
+            content = '未找到章节内容,刷新重试'
+        text +=  """chapter.title + '\n' + content + '\n\n'"""
+    return text
+
+
+def downloadbook(book_id):
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(dbook(book_id=book_id))
+
+
+async def get_content(session, url, index):
+    with async_timeout.timeout(10):
+        async with session.get(url) as resp:
+            if resp.status != 200:
+                return (index, '\n' + 'sorry 获取正文失败 |' + '\n')
+            return (index, await resp.text(encoding='gbk'))
+
+
+
+async def down(book_id):
+    tasks = []
+    async with aiohttp.ClientSession() as session:
+        for chapter in BookChapter.objects.all().filter(book_id=book_id).order_by('index')[:100]:
+            task = asyncio.ensure_future(get_content(session, chapter.url, chapter.index))
+            tasks.append(task)
+        datas = await asyncio.gather(*tasks)
+        return datas
+
+
+def gen_book(datas):
+    datas = sorted(datas, key=lambda x: x[0])
+    for data in datas:
+        soup = BeautifulSoup(data[1], "html.parser")
+        try:
+            text = soup.find("div",id="content").get_text()
+            print(text)
+        except:
+            print(data)
+
+
+if __name__ == '__main__':
+
+    start = time.time()
+    loop = asyncio.get_event_loop()
+    datas = loop.run_until_complete(down(18))
+    end = time.time()
+    print('time1:', (end-start))
+    time.sleep(5)
+    gen_book(datas)
