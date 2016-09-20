@@ -186,5 +186,3 @@ def feedback(request):
         return redirect('novel:feedback')
     else:
         return HttpResponseBadRequest('非法访问方式.')
-
-

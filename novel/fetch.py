@@ -1,6 +1,6 @@
 # coding: utf-8
 import logging
-from urllib import (request, parse)
+from urllib import request, parse as parseurl
 import asyncio, sys, os, time
 import async_timeout
 import aiohttp
@@ -23,11 +23,11 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0)
 
 def search_by_config(bookname):
     bookname = bookname.strip()
-    for source in Config.objects.all().order_by('-priority'):
+    for source in Config.objects.all().order_by('priority')[:2]:
         __searchdata = {}
         __searchdata[source.search_keyword] = bookname  # 构建搜索关键词
         # print(source.search_link)
-        url = source.search_link + parse.urlencode(__searchdata, encoding='utf8')  # 关键词URL编码
+        url = source.search_link + parseurl.urlencode(__searchdata, encoding='utf8')  # 关键词URL编码
         # print(url)
         logging.info(url)
         try:
@@ -190,47 +190,61 @@ async def dbook(book_id):
     return text
 
 
-def downloadbook(book_id):
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(dbook(book_id=book_id))
-
-
 async def get_content(session, url, index):
     with async_timeout.timeout(10):
         async with session.get(url) as resp:
             if resp.status != 200:
-                return (index, '\n' + 'sorry 获取正文失败 |' + '\n')
-            return (index, await resp.text(encoding='gbk'))
+                return (index, '\n' + 'sorry 获取正文失败 |' + '\n', url)
+            try:
+                content = await resp.read()
+                content = parse(content)
+            except Exception as e:
+                print(url)
+                print(e)
+                return (index, '\n' + 'sorry 获取正文失败 |' + '\n', url)
+            return (index, content, url)
 
 
 
-async def down(book_id):
+async def fetch(book_id, begin=0, end=100):
     tasks = []
     async with aiohttp.ClientSession() as session:
-        for chapter in BookChapter.objects.all().filter(book_id=book_id).order_by('index')[:100]:
+        for chapter in BookChapter.objects.all().filter(book_id=book_id).order_by('index')[begin:end]:
             task = asyncio.ensure_future(get_content(session, chapter.url, chapter.index))
             tasks.append(task)
         datas = await asyncio.gather(*tasks)
         return datas
 
 
-def gen_book(datas):
-    datas = sorted(datas, key=lambda x: x[0])
-    for data in datas:
-        soup = BeautifulSoup(data[1], "html.parser")
-        try:
-            text = soup.find("div",id="content").get_text()
-            print(text)
-        except:
-            print(data)
+def parse(content):
+    # if type(content[1]) == bytes:
+    c = content.decode('gbk', 'ignore').replace('<br />','\n')
+    soup = BeautifulSoup(c, "html.parser")
+    try:
+        text = soup.find("div",id="content").get_text()
+    except:
+        text = '\n' + 'sorry 获取正文失败 |' + '\n' + content[2]
+    return text
+
+def downbook(book_id):
+    _num = 50
+    begin, end = 0, _num
+    contents = []
+    while begin+1 < BookChapter.objects.all().filter(book_id=book_id).count():
+        loop = asyncio.get_event_loop()
+        contents = loop.run_until_complete(fetch(book_id=book_id, begin=begin, end=end))
+        # contents.extend(datas)
+        begin += _num
+        end += _num
+        for content in contents:
+            yield content[1]
 
 
 if __name__ == '__main__':
 
     start = time.time()
-    loop = asyncio.get_event_loop()
-    datas = loop.run_until_complete(down(18))
+    for text in downbook(21):
+        print(text)
     end = time.time()
     print('time1:', (end-start))
     time.sleep(5)
-    gen_book(datas)
