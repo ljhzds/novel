@@ -19,8 +19,8 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 
-handler404 = "novel.down_novel_views.page_not_found"
-handler500 = "novel.down_novel_views.page_error"
+handler404 = "novel.views.page_not_found"
+handler500 = "novel.views.page_error"
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -28,5 +28,5 @@ urlpatterns = [
     url(r'^usercenter/', include('usercenter.urls', namespace='usercenter', app_name='usercenter')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
 ]
-if settings.DEBUG = True:
+if settings.DEBUG == True:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
