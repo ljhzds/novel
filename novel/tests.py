@@ -11,11 +11,11 @@ if __name__ == '__main__':
     assert r.status_code == 200
     print('search')
     r = requests.get('http://127.0.0.1:8000/search?bookname=大主宰')
-    
+
     assert r.status_code == 200
     print('book')
     r = requests.get('http://127.0.0.1:8000/book/1')
-    
+
     assert r.status_code == 200
     print('chapter')
     r = requests.get('http://127.0.0.1:8000/book/1/10')

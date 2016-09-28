@@ -31,16 +31,17 @@ def get_download_links(page_url='http://www.txt56.com/list0-1.html'):
         try:
             book_index_url = dl.dt.a['href']
             book_id = book_index_url.split('.')[-2].split('/')[-1]
-            book_down_url = 'http://www.txt56.com/txt/down/x{0}.html'.format(book_id)
+            book_down_url = 'http://www.txt56.com/txt/down/x{0}.html'.format(
+                book_id)
             book_name = dl.dd.ul.li.a.get_text()
             book_author = dl.dd.ul.li.get_text()
             book_author = book_author.split('作者：')[-1]
             book_img_url = dl.dt.img['src']
             book_j_data.update({
-            book_id:
-                { 
-                    'book_name': book_name, 
-                    'book_author': book_author, 
+                book_id:
+                {
+                    'book_name': book_name,
+                    'book_author': book_author,
                     'book_down_url': book_down_url,
                     'book_image_url': book_img_url
                 }
@@ -70,5 +71,3 @@ if __name__ == '__main__':
         book_j_data, page_url = get_download_links(page_url=page_url)
         json.dump(book_j_data, jsonfile)
         jsonfile.write('\n')
-
-
