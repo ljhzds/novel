@@ -23,7 +23,8 @@ this_dir = os.path.join(BASE_DIR, 'novel')
 
 CONFIG.read(os.path.join(this_dir, "config.ini"), encoding='utf8')
 
-header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0'}
+header = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0'}
 
 
 def get_id():
@@ -44,7 +45,8 @@ def search_by_id(novelname, id='bqg5200'):
     opts = CONFIG[id]
     __searchdata = {}
     __searchdata[opts['keyword']] = novelname  # 构建搜索关键词
-    url = opts["slink"] + parse.urlencode(__searchdata, encoding='utf8')  # 关键词URL编码
+    url = opts["slink"] + \
+        parse.urlencode(__searchdata, encoding='utf8')  # 关键词URL编码
     try:
         data = requests.get(url, headers=header).content  # 读取搜索页面内容
     except:
@@ -68,12 +70,12 @@ def search_by_id(novelname, id='bqg5200'):
     # try:
     #     data = request.urlopen(url).read()                             #读取小说信息页面内容
     # except:
-    #     return -1                                                      #小说信息页面无法连接
+    # return -1
+    # #小说信息页面无法连接
     return url, bookname
 
 # url = search_by_id('雪鹰领主', 'bqg5200')
 # print(url)
-
 
 
 def get_novel_info(url, id='bqg5200'):
@@ -226,7 +228,8 @@ def escape(txt, space=1):
 def get_chapter_content(chapter_url, book_website):
     opts = CONFIG[book_website]
     try:
-        data = requests.get(chapter_url, headers=header).content.decode('gbk', 'ignore').replace('<br />','\n')
+        data = requests.get(chapter_url, headers=header).content.decode(
+            'gbk', 'ignore').replace('<br />', '\n')
         soup = BeautifulSoup(data, "html.parser")
         content = eval('soup.' + opts['text'])
     except:
@@ -268,7 +271,8 @@ def search_by_keyword2(keyword):
     threads = []
     search_result_noveldata = []
     for id in get_id():
-        t = threading.Thread(target=search_by_keyword_and_id, args=(keyword, id))
+        t = threading.Thread(
+            target=search_by_keyword_and_id, args=(keyword, id))
         # threads.append(t)
         t.start()
         t.join()
@@ -293,7 +297,6 @@ def search_by_keyword_and_id(keyword, id):
         search_result_noveldata.append(noveldata)
     finally:
         lock.release()
-
 
 
 def save_search_result_data_to_book(search_result_noveldata):
@@ -338,4 +341,3 @@ class SearchFailedException(Exception):
 
 if __name__ == '__main__':
     search_by_keyword("斗破苍穹")
-

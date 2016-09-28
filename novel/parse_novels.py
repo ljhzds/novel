@@ -1,6 +1,7 @@
 # coding: utf8
 
-import json, os.path
+import json
+import os.path
 from django.conf import settings
 
 BASE_DIR = settings.BASE_DIR
@@ -8,6 +9,8 @@ json_file_dir = os.path.join(BASE_DIR, 'novel')
 all_book_json = os.path.join(json_file_dir, 'txt56_novels.json')
 hot_book_json = os.path.join(json_file_dir, 'hotbooks.json')
 hot_in_record = os.path.join(json_file_dir, 'hots.json')
+
+
 def record_books():
     records = dict()
     with open(all_book_json) as bookdata:
@@ -40,8 +43,10 @@ def search_like_bookname(bookname, allbook=record_books()):
             book_down_url = allbook[book_id]['book_down_url']
             book_img_url = allbook[book_id]['book_image_url']
             book_author = allbook[book_id]['book_author']
-            result.append((book_name, book_author, book_down_url, book_img_url))
-    if len(result) == 0: result = None
+            result.append(
+                (book_name, book_author, book_down_url, book_img_url))
+    if len(result) == 0:
+        result = None
     return result
 
 

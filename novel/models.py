@@ -4,9 +4,12 @@ from django.db import models
 from django.conf import settings
 
 # Create your models here.
+
+
 class Config(models.Model):
     # 站点源信息
-    site_short_name = models.CharField(max_length=20, verbose_name='ID', unique=True)
+    site_short_name = models.CharField(
+        max_length=20, verbose_name='ID', unique=True)
     site_desc = models.CharField(max_length=50, verbose_name='站点源')
     site_url = models.CharField(max_length=200, verbose_name='站点源URL')
     search_link = models.CharField(max_length=200, verbose_name='查询URL')
@@ -31,7 +34,7 @@ class Config(models.Model):
     chapter_link = models.CharField(max_length=200, verbose_name='章节地址')
     text = models.CharField(max_length=200, verbose_name='章节正文')
 
-    #priority 优先级
+    # priority 优先级
     priority = models.IntegerField(verbose_name='查询优先级', default=1)
 
     class Meta:
@@ -43,7 +46,8 @@ class Config(models.Model):
 
 
 class BookTag(models.Model):
-    tag_name = models.CharField(max_length=50, verbose_name='书本分类', unique=True)
+    tag_name = models.CharField(
+        max_length=50, verbose_name='书本分类', unique=True)
 
     class Meta:
         verbose_name = '书本分类'
@@ -61,16 +65,20 @@ class Book(models.Model):
     name = models.CharField(max_length=100, verbose_name='书名')
     tag = models.ForeignKey(BookTag, blank=True, null=True)
     source_site = models.CharField(max_length=100, verbose_name='来源网站')
-    source_site2 = models.ForeignKey(Config, verbose_name='站点源', default='', null= True, blank=True)
-    author = models.CharField(max_length=50, verbose_name='作者', default='暂无作者信息')
+    source_site2 = models.ForeignKey(
+        Config, verbose_name='站点源', default='', null=True, blank=True)
+    author = models.CharField(
+        max_length=50, verbose_name='作者', default='暂无作者信息')
     img = models.CharField(max_length=200, verbose_name='封面地址', default='')
     desc = models.CharField(max_length=1000, verbose_name='简介', default='')
-    index_url = models.CharField(max_length=200, verbose_name='主页', blank=True, null=True)
-    down_url = models.CharField(max_length=200, verbose_name='下载地址', blank=True, null=True, default='')
+    index_url = models.CharField(
+        max_length=200, verbose_name='主页', blank=True, null=True)
+    down_url = models.CharField(
+        max_length=200, verbose_name='下载地址', blank=True, null=True, default='')
 
     add_time = models.DateTimeField(verbose_name='入库时间', auto_now_add=True)
     update_time = models.DateTimeField(verbose_name='更新时间', auto_now=True)
-    
+
     hot = models.IntegerField(verbose_name='火热指数', default=0)
     read_on_site = models.BooleanField(verbose_name='本站是否可读', default=False)
 
@@ -80,6 +88,7 @@ class Book(models.Model):
     class Meta:
         verbose_name = '小说'
         verbose_name_plural = '小说'
+
     def __str__(self):
         return self.name
 
@@ -90,6 +99,7 @@ class Book(models.Model):
             return site.id
         except:
             return None
+
 
 class BookChapter(models.Model):
     book = models.ForeignKey(Book)
@@ -110,15 +120,16 @@ class BookChapter(models.Model):
 class Feedback(models.Model):
     title = models.CharField(max_length=100, verbose_name='问题')
     desc = models.CharField(max_length=500, verbose_name='详细描述')
-    email = models.EmailField(max_length=50, verbose_name='邮箱', null=True, blank=True)
+    email = models.EmailField(
+        max_length=50, verbose_name='邮箱', null=True, blank=True)
 
     add_time = models.DateTimeField(verbose_name='反馈时间', auto_now_add=True)
 
     done_flag = models.BooleanField(verbose_name='是否解决', default=False)
 
     class Meta:
-        verbose_name='问题反馈'
-        verbose_name_plural='问题反馈'  
+        verbose_name = '问题反馈'
+        verbose_name_plural = '问题反馈'
 
     def __str__(self):
         return self.title
@@ -126,12 +137,14 @@ class Feedback(models.Model):
 
 class FeedbackComment(models.Model):
     feedback = models.ForeignKey(Feedback, verbose_name='所属问题')
-    parent_comment = models.ForeignKey('self', related_name='my_children', blank=True, null=True)
-    comment = models.CharField(max_length=200, blank=True,null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='回复人', null=True, blank=True)
+    parent_comment = models.ForeignKey(
+        'self', related_name='my_children', blank=True, null=True)
+    comment = models.CharField(max_length=200, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             verbose_name='回复人', null=True, blank=True)
 
     def clean(self):
-        if len(self.comment) ==0:
+        if len(self.comment) == 0:
             raise ValidationError('评论内容不能为空')
 
     def __str__(self):
