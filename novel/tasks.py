@@ -4,12 +4,16 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 import time
+from datetime import datetime
 from django.core.wsgi import get_wsgi_application
 
-
-sys.path.extend(
-    ['/Users/zhangdesheng/Documents/python-learning/zds-git/newnovel/', ])
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "newnovel.settings")
+if os.path.exists('/home/zhangdesheng/django/newnovel/'):
+    sys.path.extend(['/home/zhangdesheng/django/newnovel/', ])
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "newnovel.local_settings")
+else:
+    sys.path.extend(
+        ['/Users/zhangdesheng/Documents/python-learning/zds-git/newnovel/', ])
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "newnovel.settings")
 application = get_wsgi_application()
 
 from novel.models import Book, BookTag, BookChapter
@@ -75,17 +79,14 @@ def update_all_books():
                 'http://novels.freelycode.com/update/{0}'.format(book.id), headers=header)
         except:
             logging.error('更新book_id: {0} 失败了'.format(book.id))
-            pass
+            continue
+        logging.error('更新book_id: {0} 成功了'.format(book.name))
         time.sleep(0.2)
 
 
 if __name__ == '__main__':
-    hots = get_baidu_top_books()
-    print(hots)
-    # for bookname, hot_number in hots:
-    #     try:
-    #         record_hot_book(bookname, hot_number)
-    #     except:
-    #         continue
-    # time.sleep(3)
-    # update_all_books()
+    while True:
+        if datetime.now().hour == 12:
+            update_all_books()
+            time.sleep(3600)
+
